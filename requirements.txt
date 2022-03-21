@@ -1,0 +1,5 @@
+httplib2
+requests
+bs4
+colorama
+termcolor
