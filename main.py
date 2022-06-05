@@ -6,38 +6,6 @@ import random as rnd
 import os
 import sys
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-def colored(text, color):
-	match color:
-		case "header":
-			return bcolors.HEADER+text+bcolors.ENDC
-		case "okblue":
-			return bcolors.OKBLUE+text+bcolors.ENDC
-		case "okcyan":
-			return bcolors.OKCYAN+text+bcolors.ENDC
-		case "okgreen":
-			return bcolors.OKGREEN+text+bcolors.ENDC
-		case "warning":
-			return bcolors.WARNING+text+bcolors.ENDC
-		case "fail":
-			return bcolors.FAIL+text+bcolors.ENDC
-		case "bold":
-			return bcolors.BOLD+text+bcolors.ENDC
-		case "underline":
-			return bcolors.UNDERLINE+text+bcolors.ENDC
-		case _:
-			return text
-
 if not os.path.exists("images"):
     os.makedirs("images")
 
@@ -67,12 +35,12 @@ for i in range(amt):
 	for image in images:
 		image_link.append(image['src'])
 	
-	print(colored(image_link[0], 'warning'))
+	print(image_link[0])
 	
 	try:
 		r = requests.get(image_link[0],
                  stream=True, headers={'User-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2)     AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'})
-		print(colored(f"status code: {r.status_code}", "okcyan"))
+		print(f"status code: {r.status_code}")
 	
 		if r.status_code == 200:
 			with open(f"images/{''.join(link)}.png", 'wb') as f:
@@ -81,7 +49,7 @@ for i in range(amt):
 		elif r.status_code == 403:
 			i =+ 1
 	except Exception as e:
-		print(colored(f"oops: {e}", "fail"))
+		print(f"oops: {e}")
 
 print("Done!")
 input("Press enter to exit...")
