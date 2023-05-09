@@ -1,4 +1,3 @@
-import httplib2
 import requests
 import shutil
 from bs4 import BeautifulSoup, SoupStrainer
@@ -8,48 +7,58 @@ import sys
 
 if not os.path.exists("images"):
     os.makedirs("images")
+    
+version = "v1.1"
+print(f"Lightshot Parser {version}")
+print("Dont forget to read the warning message at https://github.com/Utoog/LightshotParser/blob/main/README.md")
 
-print("Lightshot Parser v1.0")
 amt = input("How much images you want to be downloaded: ")
 try:
 	amt = int(amt)
-except:
-	print("You need to type a number, please")
+except TypeError:
+	print("[ERROR] You need to type a number")
 	input("Press enter to exit...")
 	sys.exit()
 
 alph = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
-
-for i in range(amt):
+i = 0
+while i < amt:
 	link = list()
 	
 	for _ in range(6):
 		link.append(alph[rnd.randint(0, len(alph)-1)])
 	
 	url = f'https://prnt.sc/{"".join(link)}'
-	http = httplib2.Http()
-	response, content = http.request(url)
-	images = BeautifulSoup(content, features = "html.parser").find_all('img')
-	image_link = []
-	
-	for image in images:
-		image_link.append(image['src'])
-	
-	print(image_link[0])
-	
 	try:
-		r = requests.get(image_link[0],
-                 stream=True, headers={'User-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2)     AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'})
+		response = requests.get(url, headers={'User-agent': 'Chrome'})
+		content = response.content
+	except TimeoutError:
+		print(f"[ERROR] TimeoutError, Link: {url}")
+		sys.exit()
+	except Exception as e:
+		print(f"[ERROR] {e} Link: {url}")
+		sys.exit()
+	image = BeautifulSoup(content, features = "html.parser").find("img", id="screenshot-image")
+	if image != None:
+		image_link = image['src']
+	else:
+		amt += 1
+		continue
+	print(image_link)
+
+	try:
+		r = requests.get(image_link,
+                 stream=True, headers={'User-agent': 'Chrome'})
 		print(f"status code: {r.status_code}")
 	
 		if r.status_code == 200:
 			with open(f"images/{''.join(link)}.png", 'wb') as f:
 				r.raw.decode_content = True
 				shutil.copyfileobj(r.raw, f)
-		elif r.status_code == 403:
-			i =+ 1
+		elif r.status_code == 403 or r.status_code == 404:
+			amt += 1
 	except Exception as e:
-		print(f"oops: {e}")
-
+		print(f"[ERROR] {e} Link: {url}")
+	i += 1
 print("Done!")
 input("Press enter to exit...")
